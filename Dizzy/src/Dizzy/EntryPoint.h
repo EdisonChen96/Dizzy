@@ -6,7 +6,8 @@ extern Dizzy::Application* Dizzy::CreateApplication();
 
 int main(int argc, char** argv)
 {
-    printf("-- DizzyEngine Application Start --\n");
+    Dizzy::Logger::Init();
+    DIZZY_CORE_WARN("Initialized Log");
     auto app = Dizzy::CreateApplication();
     app->Run();
     delete app;
