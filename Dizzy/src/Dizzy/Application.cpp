@@ -1,4 +1,5 @@
 #include "Application.h"
+#include "Logger.h"
 
 namespace Dizzy
 {
@@ -14,7 +15,7 @@ namespace Dizzy
 	{
 		while (true)
 		{
-
+			DIZZY_CORE_INFO("Tick Running");
 		}
 	}
 }
