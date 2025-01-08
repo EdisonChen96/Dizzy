@@ -14,6 +14,10 @@ set(DIZZY_HEADERS
         "src/Dizzy/Core.h"
         "src/Dizzy/EntryPoint.h"
         "src/Dizzy/Logger.h"
+        "src/Dizzy/Events/Event.h"
+        "src/Dizzy/Events/KeyEvent.h"
+        "src/Dizzy/Events/MouseEvent.h"
+        "src/Dizzy/Events/ApplicationEvent.h"
 )
 
 # 设置Dizzy项目的源文件列表
@@ -72,6 +76,7 @@ if (MSVC)
             /std:c++17;    # 使用C++17标准
             /sdl;          # 启用安全开发生命周期检查
             /W3;           # 设置警告级别为3
+            /EHsc          # EHsc编译选项
             ${DEFAULT_CXX_DEBUG_INFORMATION_FORMAT};  # 使用默认的调试信息格式
             /utf-8;        # 使用UTF-8编码
             ${DEFAULT_CXX_EXCEPTION_HANDLING}          # 使用默认的异常处理模式
@@ -85,3 +90,12 @@ if (MSVC)
             /SUBSYSTEM:CONSOLE  # 设置子系统为控制台应用程序
     )
 endif ()
+
+#上级目录路径
+get_filename_component(PARENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PATH)
+
+#使用相对路径来拷贝Dizzy.dll到Sandbox的输出目录
+add_custom_command(TARGET Dizzy POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        "${PARENT_BINARY_DIR}/Dizzy"
+        "${PARENT_BINARY_DIR}/Sandbox")

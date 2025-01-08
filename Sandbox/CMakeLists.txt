@@ -92,7 +92,7 @@ get_filename_component(PARENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PATH)
 add_custom_command(TARGET Sandbox POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         "${PARENT_BINARY_DIR}/Dizzy"
-        "${CMAKE_CURRENT_BINARY_DIR}")
+        "${PARENT_BINARY_DIR}/Sandbox")
 
 
 
