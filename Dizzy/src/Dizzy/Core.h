@@ -7,3 +7,5 @@
 		#define DIZZY_API __declspec(dllimport)
 	#endif
 #endif
+
+#define BIT(x) (1 << x)
