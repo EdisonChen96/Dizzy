@@ -13,7 +13,7 @@ if(NOT CMAKE_VS_PLATFORM_NAME)
 endif()
 
 # 输出当前使用的架构信息
-message("--current architecture: ${CMAKE_VS_PLATFORM_NAME}")
+message("-- current architecture: ${CMAKE_VS_PLATFORM_NAME}")
 
 # 如果当前架构不是x64，则报错并终止配置
 if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64"))
@@ -29,7 +29,7 @@ set(CMAKE_CONFIGURATION_TYPES
 
 # 如果使用MSVC编译器，则清除CMake默认提供的编译器标志
 if(MSVC)
-    set(CMAKE_CXX_FLAGS "")
+#    set(CMAKE_CXX_FLAGS "")
     set(CMAKE_CXX_FLAGS_DEBUG "")
     set(CMAKE_CXX_FLAGS_RELEASE "")
 endif()
@@ -67,6 +67,14 @@ add_subdirectory(Sandbox)
 
 # 设置Sandbox为启动项目
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT Sandbox)
+
+# 创建一个自定义目标来确保Dizzy库在Sandbox之前构建
+add_custom_target(build_Dizzy ALL
+        DEPENDS Dizzy
+)
+
+# 确保Sandbox依赖于build_Dizzy
+add_dependencies(Sandbox build_Dizzy)
 
 
 

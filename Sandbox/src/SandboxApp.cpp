@@ -1,5 +1,5 @@
-
 #include <Dizzy.h>
+#include "Dizzy/Core/EntryPoint.h"
 
 class Sandbox : public Dizzy::Application
 {

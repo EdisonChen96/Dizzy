@@ -1,6 +1,6 @@
+#include "../../dzpch.h"
 #include "Application.h"
-#include "Logger.h"
-#include "Events/KeyEvent.h"
+
 
 
 namespace Dizzy

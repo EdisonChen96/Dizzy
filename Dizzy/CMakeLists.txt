@@ -10,10 +10,10 @@ set(PROJECT_NAME Dizzy)
 # 设置Dizzy项目的头文件列表
 set(DIZZY_HEADERS
         "src/Dizzy.h"
-        "src/Dizzy/Application.h"
-        "src/Dizzy/Core.h"
-        "src/Dizzy/EntryPoint.h"
-        "src/Dizzy/Logger.h"
+        "src/Dizzy/Core/Application.h"
+        "src/Dizzy/Core/Core.h"
+        "src/Dizzy/Core/EntryPoint.h"
+        "src/Dizzy/Debug/Logger.h"
         "src/Dizzy/Events/Event.h"
         "src/Dizzy/Events/KeyEvent.h"
         "src/Dizzy/Events/MouseEvent.h"
@@ -22,8 +22,9 @@ set(DIZZY_HEADERS
 
 # 设置Dizzy项目的源文件列表
 set(DIZZY_SOURCES
-        "src/Dizzy/Application.cpp"
-        "src/Dizzy/Logger.cpp"
+        "src/Dizzy/Debug/Logger.cpp"
+        "src/Dizzy/Core/Application.cpp"
+        "src/dzpch.cpp"
 )
 
 # 将头文件和源文件合并到ALL_FILES变量中
@@ -67,6 +68,9 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
 
 # 设置目标的编译选项，针对MSVC编译器
 if (MSVC)
+    # 添加预编译头文件
+    target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/dzpch.h")
+
     target_compile_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Release>:
             /Oi;  # 内联函数优化

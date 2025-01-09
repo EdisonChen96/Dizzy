@@ -44,8 +44,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 
 # 设置目标的包含目录，包含Dizzy项目和spdlog库的头文件路径
 target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/src;"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd;"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/spdlog/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/src;"
 )
 
 # 设置目标的编译定义，包括平台定义和字符集定义
@@ -84,6 +85,9 @@ endif ()
 target_link_libraries(${PROJECT_NAME} PRIVATE
         Dizzy
 )
+
+# 明确指定Sandbox依赖于Dizzy库的构建
+add_dependencies(${PROJECT_NAME} Dizzy)
 
 #上级目录路径
 get_filename_component(PARENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PATH)

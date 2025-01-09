@@ -1,10 +1,11 @@
 #pragma once
 #include "Core.h"
-#include "Events/Event.h"
+#include "../Events/KeyEvent.h"
+#include "../Debug/Logger.h"
 
 namespace Dizzy
 {
-    class __declspec(dllexport) Application
+    class DIZZY_API Application
     {
     public:
         Application();

@@ -1,12 +1,12 @@
 #pragma once
 
+#include <dzpch.h>
+
 #include <stdio.h>
 
 // for use logger
-#include "Dizzy/Logger.h"
+#include "Dizzy/Debug/Logger.h"
 
 // For use by Dizzy applications
-#include "Dizzy/Application.h"
+#include "Dizzy/Core/Application.h"
 
-// define the Enrty Point 
-#include "Dizzy/EntryPoint.h"
