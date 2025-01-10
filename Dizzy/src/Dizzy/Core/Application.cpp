@@ -4,7 +4,7 @@
 
 namespace Dizzy
 {
-#define BIND_EVENT_FUNC(x) [this](Event& e) { x(e); }      // Lambda for event binding
+#define BIND_EVENT_FUNC(x) [this](auto& e) { return x(e); }
 
     Application::Application()
     {
@@ -16,7 +16,9 @@ namespace Dizzy
 
     void Application::OnEvent(Event& e)
     {
-        DIZZY_CORE_INFO("{0}", format_event(e));
+        EventDispatcher dispatcher(e);
+        dispatcher.Dispatch<WindowCloseEvent>(BIND_EVENT_FUNC(OnWindowClose));
+        DIZZY_CORE_TRACE("{0}", format_event(e));
     }
 
     void Application::Run()
