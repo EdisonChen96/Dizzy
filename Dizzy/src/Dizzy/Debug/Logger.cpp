@@ -15,14 +15,4 @@ namespace Dizzy
 		s_ClientLogger = spdlog::stdout_color_mt("App");
 		s_ClientLogger->set_level(spdlog::level::trace);
 	}
-
-	// std::shared_ptr<spdlog::logger> Logger::GetCoreLogger()
-	// {
-	// 	return s_CoreLogger;
-	// }
-	//
-	// std::shared_ptr<spdlog::logger> Logger::GetClientLogger()
-	// {
-	// 	return s_ClientLogger;
-	// }
 }

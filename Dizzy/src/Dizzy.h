@@ -1,7 +1,5 @@
 #pragma once
 
-#include <dzpch.h>
-
 #include <stdio.h>
 
 // for use logger
