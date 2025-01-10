@@ -12,14 +12,15 @@ set(PROJECT_NAME Sandbox)
 ################################################################################################################################
 
 # 构建Sandbox.exe 可执行文件
-add_executable(${PROJECT_NAME} ./src/SandboxApp.cpp)
+add_executable(${PROJECT_NAME}
+        ./src/SandboxApp.cpp)
 
 # 设置目标的包含目录，包含Dizzy项目和spdlog库的头文件路径
 target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd;"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/src;"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/spdlog/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/glfw/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/glad/include"
 )
 
 ################################################################################################################################
@@ -31,11 +32,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         "DIZZY_PLATFORM_WINDOWS;"
         "UNICODE;"
         "_UNICODE"
-)
-
-# 启用发布配置下的交叉优化
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
 )
 
 # 设置目标的编译选项，针对MSVC编译器
@@ -54,10 +50,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对
     )
     target_link_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Release>:
-            -flto;  # 启用LTO
+#            -flto;  # 启用LTO
             >
     )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  #设置目标的编译选项，针对MSVC编译器
+    # 启用发布配置下的交叉优化
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+    )
+
     target_compile_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Release>:
             /Oi;  # 内联函数优化

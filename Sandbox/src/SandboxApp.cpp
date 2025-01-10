@@ -10,7 +10,7 @@ public:
 
     void OnUpdate() override
     {
-        DIZZY_INFO("ExampleLayer::Update");
+        // DIZZY_INFO("ExampleLayer::Update");
     }
 
     void OnEvent(Dizzy::Event& event) override

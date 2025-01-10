@@ -1,9 +1,6 @@
 # 设置CMake最低版本要求为3.16.0，如果版本低于此版本则报错
 cmake_minimum_required(VERSION 3.16.0 FATAL_ERROR)
 
-# 设置CMAKE_SYSTEM_VERSION为10.0，并强制缓存
-set(CMAKE_SYSTEM_VERSION 10.0 CACHE STRING "" FORCE)
-
 # 定义项目名称为Dizzy，并指定使用C++语言
 project(Dizzy CXX)
 
@@ -24,15 +21,14 @@ set(CMAKE_CONFIGURATION_TYPES
         CACHE STRING "" FORCE
 )
 
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # 如果使用MSVC编译器，则清除CMake默认提供的编译器标志
 if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_CXX_FLAGS "")
     set(CMAKE_CXX_FLAGS_DEBUG "")
     set(CMAKE_CXX_FLAGS_RELEASE "")
-endif()
-
-# 如果使用MSVC编译器，则清除CMake默认提供的链接器标志
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_EXE_LINKER_FLAGS "")
     set(CMAKE_MODULE_LINKER_FLAGS "")
     set(CMAKE_SHARED_LINKER_FLAGS "")
@@ -46,15 +42,6 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_SHARED_LINKER_FLAGS_RELEASE "${CMAKE_SHARED_LINKER_FLAGS}")
     set(CMAKE_STATIC_LINKER_FLAGS_RELEASE "${CMAKE_STATIC_LINKER_FLAGS}")
 endif()
-
-# 包含CMake/Utils.cmake文件中的公用工具函数
-include(CMake/Utils.cmake)
-
-# 包含CMake/GlobalSettingsInclude.cmake文件中的全局设置，如果文件不存在则忽略
-include(CMake/GlobalSettingsInclude.cmake OPTIONAL)
-
-# 启用解决方案文件夹功能
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # 添加子项目Dizzy，确保Dizzy.dll先编译完成
 add_subdirectory(Dizzy)

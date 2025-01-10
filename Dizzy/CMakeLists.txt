@@ -8,6 +8,9 @@ project(Dizzy CXX)
 set(PROJECT_NAME Dizzy)
 
 
+# 添加子项目Glad，确保Glad库先编译完成
+add_subdirectory(3rd/glad)
+
 ################################################################################################################################
 #   构建Dizzy动态链接库
 ################################################################################################################################
@@ -18,45 +21,49 @@ file(GLOB_RECURSE DIZZY_HEADERS "src/**/*.h")
 # 设置Dizzy项目的源文件列表
 file(GLOB_RECURSE DIZZY_SOURCES "src/**/*.cpp")
 
+
 # 将头文件和源文件合并到ALL_FILES变量中
 set(ALL_FILES
         ${DIZZY_HEADERS}
         ${DIZZY_SOURCES}
 )
 
+
 # 构建Dizzy动态库文件
 add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 
 
+
+
 ################################################################################################################################
-#   静态链接glfw库
+#   静态链接glfw库和glad  spdlog是头文件库，所有不用链接
 ################################################################################################################################
 
+# GLFW_INCLUDE_NONE作用：在glfw.h中可搜索该宏，此处可解决和新版glad头文件中部分定义冲突的问题
+target_compile_definitions(${PROJECT_NAME} PRIVATE -DHZ_BUILD_DLL  PRIVATE -DGLFW_INCLUDE_NONE)
 
-
+# 编译对应的库存放到相应文件夹
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对MINGW编译器
     set(GLFW_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/lib-mingw")
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(GLAD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glad/lib-mingw")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  #设置目标的编译选项，针对MSVC编译器
     set(GLFW_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/lib-vc22")
+    set(GLAD_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glad/lib-vc22")
 endif ()
 
-# 指定glfw的包含目录
-target_include_directories(${PROJECT_NAME} PUBLIC
-        "${CMAKE_CURRENT_SOURCE_DIR}/src;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/include"
-)
-
-MESSAGE(${GLFW_LIB_DIR})
-
-# 指定glfw静态库的搜索路径
+# 指定glfw和glad静态库的搜索路径
 # 根据所使用的编译器，将编译后的库文件放在这里
 target_link_directories(${PROJECT_NAME} PUBLIC
+        ${GLAD_LIB_DIR}
         ${GLFW_LIB_DIR})
 
-# 链接GLFW静态库
+# 静态链接链接库
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        glad
         glfw3
-        opengl32.lib)
+#        opengl32.lib
+)
+
 
 ################################################################################################################################
 #   编译选项
@@ -64,9 +71,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # 设置目标的包含目录，包含第三方库库的头文件路径
 target_include_directories(${PROJECT_NAME} PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/src;"
         "${CMAKE_CURRENT_SOURCE_DIR}/3rd/spdlog/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/include"
-        "${GLFW_LIB_DIR}"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glad/include"
 )
 
 # 设置目标的编译定义，包括平台定义、DLL构建标志和字符集定义
@@ -74,12 +82,6 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         "DIZZY_PLATFORM_WINDOWS;"
         "DIZZY_BUILD_DLL;"
 )
-
-# 启用发布配置下的交叉优化
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
-
 
 # 检测编译器类型
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对MINGW编译器
@@ -97,10 +99,15 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对
     )
     target_link_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Release>:
-            -flto;  # 启用LTO
+#            -flto;  # 启用LTO
             >
     )
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  #设置目标的编译选项，针对MSVC编译器
+    # 启用发布配置下的交叉优化
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+    )
+
     # 添加预编译头文件
     target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/dzpch.h")
 

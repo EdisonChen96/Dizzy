@@ -3,7 +3,8 @@
 .idea/
 bin/
 bin-int/
-Dizzy/3rd/
+Dizzy/3rd/glad/cmake-build-*/
+Dizzy/3rd/glad/lib-*/
 
 # Files
 *.user

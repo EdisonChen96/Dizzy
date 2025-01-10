@@ -1,6 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "Dizzy//Core/LayerStack.h"
+#include "Dizzy/Core/LayerStack.h"
 #include "Dizzy/Window.h"
 #include "Dizzy/Events/ApplicationEvent.h"
 

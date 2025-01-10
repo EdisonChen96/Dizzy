@@ -4,6 +4,8 @@
 #include "Dizzy/Events/KeyEvent.h"
 #include "Dizzy/Events/MouseEvent.h"
 
+#include "glad/glad.h"
+
 namespace Dizzy
 {
     static bool s_GLFWInitialized = false;
@@ -35,6 +37,7 @@ namespace Dizzy
         m_Data.Width = props.Width;
         m_Data.Height = props.Height;
         DIZZY_CORE_INFO("Creating window {0} ({1}, {2})", props.Title, props.Width, props.Height);
+
         if (!s_GLFWInitialized)
         {
             // TODO: glfwTerminate on system shutdown
@@ -43,9 +46,12 @@ namespace Dizzy
             glfwSetErrorCallback(GLFWErrorCallback);
             s_GLFWInitialized = true;
         }
-        m_Window = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(),
-                                    nullptr, nullptr);
+        m_Window = glfwCreateWindow(static_cast<int>(props.Width), static_cast<int>(props.Height), m_Data.Title.c_str(), nullptr, nullptr);
         glfwMakeContextCurrent(m_Window);
+
+        int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+        DIZZY_CORE_ASSERT(status, "Failed to initialize Glad!");
+
         glfwSetWindowUserPointer(m_Window, &m_Data);
         SetVSync(true);
 
@@ -75,25 +81,25 @@ namespace Dizzy
 
             switch (action)
             {
-                case GLFW_PRESS:
-                    {
-                        KeyPressedEvent event(key, 0);
-                        data.EventCallback(event);
-                        break;
-                    }
-                case GLFW_RELEASE:
-                    {
-                        KeyReleasedEvent event(key);
-                        data.EventCallback(event);
-                        break;
-                    }
-                case GLFW_REPEAT:
-                    {
-                        KeyPressedEvent event(key, 1);
-                        data.EventCallback(event);
-                    }
-                default:
-                    break;;
+            case GLFW_PRESS:
+                {
+                    KeyPressedEvent event(key, 0);
+                    data.EventCallback(event);
+                    break;
+                }
+            case GLFW_RELEASE:
+                {
+                    KeyReleasedEvent event(key);
+                    data.EventCallback(event);
+                    break;
+                }
+            case GLFW_REPEAT:
+                {
+                    KeyPressedEvent event(key, 1);
+                    data.EventCallback(event);
+                }
+            default:
+                break;;
             }
         });
 
@@ -103,20 +109,20 @@ namespace Dizzy
             WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
             switch (action)
             {
-                case GLFW_PRESS:
-                    {
-                        MouseButtonPressedEvent event(button);
-                        data.EventCallback(event);
-                        break;
-                    }
-                case GLFW_RELEASE:
-                    {
-                        MouseButtonReleasedEvent event(button);
-                        data.EventCallback(event);
-                        break;
-                    }
-                default:
-                    break;;
+            case GLFW_PRESS:
+                {
+                    MouseButtonPressedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
+            case GLFW_RELEASE:
+                {
+                    MouseButtonReleasedEvent event(button);
+                    data.EventCallback(event);
+                    break;
+                }
+            default:
+                break;;
             }
         });
 

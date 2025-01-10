@@ -14,8 +14,8 @@ namespace Dizzy {
         unsigned int Height;
         // 构造函数初始化
         explicit WindowProps(const std::string& title = "Dizzy Engine",
-                    unsigned int width = 1200, 
-                    unsigned int height = 720)
+                    unsigned int width = 1920,
+                    unsigned int height = 1080)
             : Title(title), Width(width), Height(height)
         {
         }    
