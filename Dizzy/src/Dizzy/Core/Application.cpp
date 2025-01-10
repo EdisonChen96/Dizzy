@@ -1,23 +1,23 @@
-#include "../../dzpch.h"
+#include "dzpch.h"
 #include "Application.h"
-
-
+#include <GLFW/glfw3.h>
 
 namespace Dizzy
 {
-	Application::Application() = default;
+	Application::Application()
+	{
+		m_Window = std::unique_ptr<Window>(Window::Create());
+	};
 
 	Application::~Application() = default;
 
 	void Application::Run()
 	{
-		while (true)
+		while (m_Running)
 		{
-			KeyPressedEvent e(111, 2);
-			if (e.IsInCategory(EventCategoryInput))
-			{
-				DIZZY_TRACE(format_event(e));
-			}
+			glClearColor(0, 1, 0, 1);
+			glClear(GL_COLOR_BUFFER_BIT);
+			m_Window->OnUpdate();
 		}
 	}
 }

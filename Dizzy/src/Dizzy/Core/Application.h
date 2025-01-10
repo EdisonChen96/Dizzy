@@ -1,7 +1,6 @@
 #pragma once
 #include "Core.h"
-#include "../Events/KeyEvent.h"
-#include "../Debug/Logger.h"
+#include "Dizzy/Window.h"
 
 namespace Dizzy
 {
@@ -12,6 +11,10 @@ namespace Dizzy
         virtual ~Application();
 
         void Run();
+
+    private:
+        std::unique_ptr<Window> m_Window;
+        bool m_Running = true;
     };
 
     // To be defined in Client

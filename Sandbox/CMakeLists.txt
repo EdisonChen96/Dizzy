@@ -7,47 +7,24 @@ project(Dizzy CXX)
 # 设置项目名称为Sandbox
 set(PROJECT_NAME Sandbox)
 
-# 设置Sandbox的源文件列表
-set(SANDBOX_SOURCES
-        "src/SandboxApp.cpp"
-)
+################################################################################################################################
+#   构建可执行文件
+################################################################################################################################
 
-## 递归查找文件夹下的 *.cpp *.c 文件保存到 SANDBOX_SOURCES
-#file(GLOB_RECURSE SANDBOX_SOURCES *.cpp *.c)
-
-# 将所有源文件合并到ALL_FILES变量中
-set(ALL_FILES
-        ${SANDBOX_SOURCES}
-)
-
-# 添加可执行文件目标，目标名称为PROJECT_NAME，源文件为ALL_FILES
-add_executable(${PROJECT_NAME} ${ALL_FILES})
-
-# 设置目标的根命名空间为Sandbox
-set(ROOT_NAMESPACE Sandbox)
-
-# 设置目标的VS_GLOBAL_KEYWORD属性为Win32Proj
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        VS_GLOBAL_KEYWORD "Win32Proj"
-)
-
-# 设置目标的输出目录，分别针对Debug和Release配置
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG "${CMAKE_BINARY_DIR}/$<CONFIG>/${PROJECT_NAME}/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_BINARY_DIR}/$<CONFIG>/${PROJECT_NAME}/"
-)
-
-# 启用发布配置下的交叉优化
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
+# 构建Sandbox.exe 可执行文件
+add_executable(${PROJECT_NAME} ./src/SandboxApp.cpp)
 
 # 设置目标的包含目录，包含Dizzy项目和spdlog库的头文件路径
 target_include_directories(${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd;"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/spdlog/include"
         "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/src;"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/spdlog/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/../Dizzy/3rd/glfw/include"
 )
+
+################################################################################################################################
+#   编译选项
+################################################################################################################################
 
 # 设置目标的编译定义，包括平台定义和字符集定义
 target_compile_definitions(${PROJECT_NAME} PRIVATE
@@ -56,8 +33,31 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         "_UNICODE"
 )
 
+# 启用发布配置下的交叉优化
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+)
+
 # 设置目标的编译选项，针对MSVC编译器
-if (MSVC)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对MINGW编译器
+    # 预编译固定的头文件
+#    target_precompile_headers(${PROJECT_NAME} PUBLIC "${PROJECT_SOURCE_DIR}/Dizzy/src/dzpch.h")
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:
+            -flto;  # 启用LTO
+            -fno-fat-lto-objects  # 使用瘦LTO对象文件
+            >
+            -std=c++17;  # 使用C++17标准
+            -Wall;       # 开启所有警告
+            -Wextra      # 开启额外警告
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:
+            -flto;  # 启用LTO
+            >
+    )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  #设置目标的编译选项，针对MSVC编译器
     target_compile_options(${PROJECT_NAME} PRIVATE
             $<$<CONFIG:Release>:
             /Oi;  # 内联函数优化
@@ -88,6 +88,11 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 
 # 明确指定Sandbox依赖于Dizzy库的构建
 add_dependencies(${PROJECT_NAME} Dizzy)
+
+
+################################################################################################################################
+#   自定义custom命令拷贝Dizzy.dll
+################################################################################################################################
 
 #上级目录路径
 get_filename_component(PARENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PATH)

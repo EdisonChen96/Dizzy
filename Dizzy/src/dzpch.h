@@ -10,6 +10,7 @@
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+#include "Dizzy/Debug/Logger.h"
 
 #ifdef HZ_PLATFORM_WINDOWS
     #include <Windows.h>

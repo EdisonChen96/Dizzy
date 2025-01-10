@@ -7,25 +7,16 @@ project(Dizzy CXX)
 # 设置项目名称为Dizzy
 set(PROJECT_NAME Dizzy)
 
+
+################################################################################################################################
+#   构建Dizzy动态链接库
+################################################################################################################################
+
 # 设置Dizzy项目的头文件列表
-set(DIZZY_HEADERS
-        "src/Dizzy.h"
-        "src/Dizzy/Core/Application.h"
-        "src/Dizzy/Core/Core.h"
-        "src/Dizzy/Core/EntryPoint.h"
-        "src/Dizzy/Debug/Logger.h"
-        "src/Dizzy/Events/Event.h"
-        "src/Dizzy/Events/KeyEvent.h"
-        "src/Dizzy/Events/MouseEvent.h"
-        "src/Dizzy/Events/ApplicationEvent.h"
-)
+file(GLOB_RECURSE DIZZY_HEADERS "src/**/*.h")
 
 # 设置Dizzy项目的源文件列表
-set(DIZZY_SOURCES
-        "src/Dizzy/Debug/Logger.cpp"
-        "src/Dizzy/Core/Application.cpp"
-        "src/dzpch.cpp"
-)
+file(GLOB_RECURSE DIZZY_SOURCES "src/**/*.cpp")
 
 # 将头文件和源文件合并到ALL_FILES变量中
 set(ALL_FILES
@@ -33,31 +24,49 @@ set(ALL_FILES
         ${DIZZY_SOURCES}
 )
 
-# 添加共享库目标，目标名称为PROJECT_NAME，源文件为ALL_FILES变量
+# 构建Dizzy动态库文件
 add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
 
-# 设置目标的根命名空间为Dizzy
-set(ROOT_NAMESPACE Dizzy)
 
-# 设置目标的VS_GLOBAL_KEYWORD属性为Win32Proj
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        VS_GLOBAL_KEYWORD "Win32Proj"
+################################################################################################################################
+#   静态链接glfw库
+################################################################################################################################
+
+
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对MINGW编译器
+    set(GLFW_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/lib-mingw")
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(GLFW_LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/lib-vc22")
+endif ()
+
+# 指定glfw的包含目录
+target_include_directories(${PROJECT_NAME} PUBLIC
+        "${CMAKE_CURRENT_SOURCE_DIR}/src;"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/include"
 )
 
-# 设置目标的输出目录，分别针对Debug和Release配置
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        OUTPUT_DIRECTORY_DEBUG "${CMAKE_SOURCE_DIR}//bin/$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}/${PROJECT_NAME}/"
-        OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}//bin/$<CONFIG>-${CMAKE_VS_PLATFORM_NAME}/${PROJECT_NAME}/"
-)
+MESSAGE(${GLFW_LIB_DIR})
 
-# 启用发布配置下的交叉优化
-set_target_properties(${PROJECT_NAME} PROPERTIES
-        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
-)
+# 指定glfw静态库的搜索路径
+# 根据所使用的编译器，将编译后的库文件放在这里
+target_link_directories(${PROJECT_NAME} PUBLIC
+        ${GLFW_LIB_DIR})
 
-# 设置目标的包含目录，包含spdlog库的头文件路径
+# 链接GLFW静态库
+target_link_libraries(${PROJECT_NAME} PRIVATE
+        glfw3
+        opengl32.lib)
+
+################################################################################################################################
+#   编译选项
+################################################################################################################################
+
+# 设置目标的包含目录，包含第三方库库的头文件路径
 target_include_directories(${PROJECT_NAME} PUBLIC
         "${CMAKE_CURRENT_SOURCE_DIR}/3rd/spdlog/include"
+        "${CMAKE_CURRENT_SOURCE_DIR}/3rd/glfw/include"
+        "${GLFW_LIB_DIR}"
 )
 
 # 设置目标的编译定义，包括平台定义、DLL构建标志和字符集定义
@@ -66,8 +75,32 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE
         "DIZZY_BUILD_DLL;"
 )
 
-# 设置目标的编译选项，针对MSVC编译器
-if (MSVC)
+# 启用发布配置下的交叉优化
+set_target_properties(${PROJECT_NAME} PROPERTIES
+        INTERPROCEDURAL_OPTIMIZATION_RELEASE "TRUE"
+)
+
+
+# 检测编译器类型
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")  #设置目标的编译选项，针对MINGW编译器
+    # 预编译固定的头文件
+    target_precompile_headers(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/src/dzpch.h")
+
+    target_compile_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:
+            -flto;  # 启用LTO
+            -fno-fat-lto-objects  # 使用瘦LTO对象文件
+            >
+            -std=c++17;  # 使用C++17标准
+            -Wall;       # 开启所有警告
+            -Wextra      # 开启额外警告
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+            $<$<CONFIG:Release>:
+            -flto;  # 启用LTO
+            >
+    )
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")  #设置目标的编译选项，针对MSVC编译器
     # 添加预编译头文件
     target_precompile_headers(${PROJECT_NAME} PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/src/dzpch.h")
 
@@ -93,7 +126,15 @@ if (MSVC)
             /DEBUG;        # 生成调试信息
             /SUBSYSTEM:CONSOLE  # 设置子系统为控制台应用程序
     )
+else ()
+    message("Unknown Compiler!!!")
 endif ()
+
+
+
+################################################################################################################################
+#   自定义custom命令拷贝Dizzy.dll
+################################################################################################################################
 
 #上级目录路径
 get_filename_component(PARENT_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}" PATH)

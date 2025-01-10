@@ -12,9 +12,6 @@ if(NOT CMAKE_VS_PLATFORM_NAME)
     set(CMAKE_VS_PLATFORM_NAME "x64")
 endif()
 
-# 输出当前使用的架构信息
-message("-- current architecture: ${CMAKE_VS_PLATFORM_NAME}")
-
 # 如果当前架构不是x64，则报错并终止配置
 if(NOT ("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64"))
     message(FATAL_ERROR "${CMAKE_VS_PLATFORM_NAME} arch is not supported!!!")
@@ -28,14 +25,14 @@ set(CMAKE_CONFIGURATION_TYPES
 )
 
 # 如果使用MSVC编译器，则清除CMake默认提供的编译器标志
-if(MSVC)
-#    set(CMAKE_CXX_FLAGS "")
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+    set(CMAKE_CXX_FLAGS "")
     set(CMAKE_CXX_FLAGS_DEBUG "")
     set(CMAKE_CXX_FLAGS_RELEASE "")
 endif()
 
 # 如果使用MSVC编译器，则清除CMake默认提供的链接器标志
-if(MSVC)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
     set(CMAKE_EXE_LINKER_FLAGS "")
     set(CMAKE_MODULE_LINKER_FLAGS "")
     set(CMAKE_SHARED_LINKER_FLAGS "")

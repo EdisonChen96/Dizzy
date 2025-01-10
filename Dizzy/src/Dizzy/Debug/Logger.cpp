@@ -1,4 +1,4 @@
-#include "../../dzpch.h"
+#include "dzpch.h"
 #include "Logger.h"
 
 namespace Dizzy
